@@ -1,64 +1,138 @@
-import { useState } from "react";
-import Button from "./components/Button";
+import { useState, useEffect } from "react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  KeyboardSensor,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+
+import SortableItem from "./components/SortableItem";
+import TaskInput from "./components/TaskInput";
+import CompletedTasksToggle from "./components/CompletedTasksToggle";
 
 function ToDoList() {
-  const [tasks, setTasks] = useState([
-    "First Task",
-    "Second Task",
-    "Third Task",
-  ]);
+  // Load from localStorage on initial render
+  const [activeTasks, setActiveTasks] = useState(() => {
+    const saved = localStorage.getItem("activeTasks");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [completedTasks, setCompletedTasks] = useState(() => {
+    const saved = localStorage.getItem("completedTasks");
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const [newTask, setNewTask] = useState("");
+  const [showCompleted, setShowCompleted] = useState(true);
 
-  function handleInputChange(e) {
-    setNewTask(e.target.value);
-  }
+  // Save to localStorage whenever tasks change
+  useEffect(() => {
+    localStorage.setItem("activeTasks", JSON.stringify(activeTasks));
+    localStorage.setItem("completedTasks", JSON.stringify(completedTasks));
+  }, [activeTasks, completedTasks]);
 
-  function addTask() {
-    if (newTask.trim(" ") !== "") {
-      setTasks((t) => [...t, newTask]);
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = ({ active, over }) => {
+    if (active.id !== over?.id) {
+      const oldIndex = activeTasks.findIndex((t) => t.id === active.id);
+      const newIndex = activeTasks.findIndex((t) => t.id === over.id);
+      const newOrder = [...activeTasks];
+      const [moved] = newOrder.splice(oldIndex, 1);
+      newOrder.splice(newIndex, 0, moved);
+      setActiveTasks(newOrder);
+    }
+  };
+
+  const addTask = () => {
+    if (newTask.trim() !== "") {
+      setActiveTasks((prev) => [
+        ...prev,
+        { id: crypto.randomUUID(), text: newTask.trim() },
+      ]);
       setNewTask("");
     }
-  }
+  };
 
-  function deleteTask(index) {}
+  const deleteTask = (id, isCompleted = false) => {
+    if (isCompleted) {
+      setCompletedTasks((prev) => prev.filter((task) => task.id !== id));
+    } else {
+      setActiveTasks((prev) => prev.filter((task) => task.id !== id));
+    }
+  };
 
-  function moveTaskUp(index) {}
+  const toggleTaskStatus = (id, isCompleted = false) => {
+    if (isCompleted) {
+      const task = completedTasks.find((t) => t.id === id);
+      if (task) {
+        setCompletedTasks((prev) => prev.filter((t) => t.id !== id));
+        setActiveTasks((prev) => [...prev, task]);
+      }
+    } else {
+      const task = activeTasks.find((t) => t.id === id);
+      if (task) {
+        setActiveTasks((prev) => prev.filter((t) => t.id !== id));
+        setCompletedTasks((prev) => [...prev, task]);
+      }
+    }
+  };
 
-  function moveTaskDown(index) {}
-
+  // Rest of your component remains the same...
   return (
-    <div className="text-center mt-24">
-      <h1 className="text-[4rem]">Get Things Done</h1>
-      <div>
-        <input
-          type="text"
-          placeholder="Enter a task..."
-          value={newTask}
-          onChange={handleInputChange}
-          className="text-2xl"
-        />
+    <div className="min-h-screen bg-gray-50 text-gray-800 flex items-center justify-center px-4">
+      <div className="w-full max-w-xl bg-white p-8 rounded-xl shadow-xl">
+        <h1 className="text-4xl font-bold text-center text-gray-700 mb-6">
+          Get Things Done ✅
+        </h1>
 
-        <Button type="add" onClick={addTask}>
-          Add Task
-        </Button>
+        <TaskInput newTask={newTask} setNewTask={setNewTask} onAdd={addTask} />
+
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+          modifiers={[restrictToVerticalAxis]}
+        >
+          <SortableContext
+            items={activeTasks}
+            strategy={verticalListSortingStrategy}
+          >
+            <ol className="mb-4">
+              {activeTasks.map((task) => (
+                <SortableItem
+                  key={task.id}
+                  id={task.id}
+                  task={task.text}
+                  onDelete={() => deleteTask(task.id)}
+                  onToggle={() => toggleTaskStatus(task.id)}
+                />
+              ))}
+            </ol>
+          </SortableContext>
+        </DndContext>
+
+        {completedTasks.length > 0 && (
+          <CompletedTasksToggle
+            show={showCompleted}
+            setShow={setShowCompleted}
+            tasks={completedTasks}
+            onDelete={(id) => deleteTask(id, true)}
+            onToggle={(id) => toggleTaskStatus(id, true)}
+          />
+        )}
       </div>
-
-      <ol>
-        {tasks.map((task, index) => (
-          <li key={index}>
-            <span>{task}</span>
-            <Button type="delete" onClick={() => deleteTask(index)}>
-              Delete
-            </Button>
-            <Button type="move" onClick={() => moveTaskUp(index)}>
-              👆
-            </Button>
-            <Button type="move" onClick={() => moveTaskDown(index)}>
-              👇
-            </Button>
-          </li>
-        ))}
-      </ol>
     </div>
   );
 }

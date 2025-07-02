@@ -1,33 +1,21 @@
 function Button({ children, type, onClick }) {
-  if (type === "add")
-    return (
-      <button
-        className="text-bold text-md py-2 px-4 text-white border-none rounded cursor-pointer transition-colors duration-500 ease-in-out bg-green-400 hover:bg-green-600"
-        onClick={onClick}
-      >
-        {children}{" "}
-      </button>
-    );
+  const baseClass =
+    "font-bold text-md py-2 px-4 text-white rounded cursor-pointer transition-colors duration-500 ease-in-out";
 
-  if (type === "delete")
-    return (
-      <button
-        className="text-bold text-md py-2 px-4 text-white border-none rounded cursor-pointer transition-colors duration-500 ease-in-out bg-red-400 hover:bg-red-600"
-        onClick={onClick}
-      >
-        {children}{" "}
-      </button>
-    );
+  const typeClasses = {
+    add: "bg-green-500 hover:bg-green-700",
+    delete: "bg-red-500 hover:bg-red-700",
+    move: "bg-gray-300 text-black hover:bg-gray-500",
+  };
 
-  if (type === "move")
-    return (
-      <button
-        className="text-bold text-md py-2 px-4 text-white border-none rounded cursor-pointer transition-colors duration-500 ease-in-out bg-gray-300 hover:bg-gray-500"
-        onClick={onClick}
-      >
-        {children}{" "}
-      </button>
-    );
+  const buttonText = type === "delete" ? "🗑️" : children;
+  const classes = `${baseClass} ${typeClasses[type] || ""}`;
+
+  return (
+    <button className={classes} onClick={onClick}>
+      {buttonText}
+    </button>
+  );
 }
 
 export default Button;

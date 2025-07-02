@@ -1,12 +1,26 @@
-# React + Vite
+# React Todo List with Drag-and-Drop and LocalStorage
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple and elegant React Todo List app featuring drag-and-drop reordering, task completion toggling, and persistent storage using `localStorage`.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Add tasks with a clean input form
+- Drag-and-drop reorder active tasks (using [dnd-kit](https://github.com/clauderic/dnd-kit))
+- Toggle tasks between active and completed states
+- Delete tasks from active or completed lists
+- Show/hide completed tasks with animated toggle and arrow indicator
+- Persistent task storage via `localStorage`
+- Keyboard accessible drag-and-drop support
+- Responsive and accessible UI styled with Tailwind CSS
 
-## Expanding the ESLint configuration
+## Demo
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+_(Add your demo link or screenshots here)_
+
+<!-- ## Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/adewara/react-todo-dnd.git
+   cd react-todo-dnd -->
