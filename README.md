@@ -15,7 +15,7 @@ A simple and elegant React Todo List app featuring drag-and-drop reordering, tas
 
 ## Demo
 
-_(Add your demo link or screenshots here)_
+https://get-thingsdone.netlify.app
 
 <!-- ## Installation
 
